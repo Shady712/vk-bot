@@ -12,6 +12,7 @@ fun main() {
     val env = applicationEngineEnvironment {
         module {
             connector {
+                host = "95.163.215.163"
                 port = 8080
             }
 
