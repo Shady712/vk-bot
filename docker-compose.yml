@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  vk-bot-db:
+    image: postgres:12.5
+    container_name: vk-bot-db
+    environment:
+      POSTGRES_DB: "vk-bot"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - "5432:5432"

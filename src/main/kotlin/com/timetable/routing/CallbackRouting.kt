@@ -7,9 +7,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.koin.ktor.ext.inject
 
 fun Application.configureCallbackRouting() {
-    val messageResponseService = MessageResponseService()
+    val messageResponseService by inject<MessageResponseService>()
 
     routing {
         post("/") {

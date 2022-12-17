@@ -1,5 +1,7 @@
 package com.timetable
 
+import com.timetable.module.dbConfigModule
+import com.timetable.module.messageModule
 import com.timetable.routing.configureCallbackRouting
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -9,6 +11,8 @@ import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
+import org.koin.ktor.plugin.Koin
+import org.koin.logger.slf4jLogger
 
 fun main() {
     val env = applicationEngineEnvironment {
@@ -29,6 +33,13 @@ fun main() {
                 })
             }
             install(IgnoreTrailingSlash)
+            install(Koin) {
+                slf4jLogger()
+                modules(
+                    messageModule,
+                    dbConfigModule
+                )
+            }
 
             configureCallbackRouting()
         }
