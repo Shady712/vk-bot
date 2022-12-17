@@ -12,12 +12,12 @@ data class VkCallbackDto(
 
 @Serializable
 data class IncomingObjectDto(
-    val message: IncomingMessageDto
+    val message: IncomingMessageDto? = null
 )
 
 @Serializable
 data class IncomingMessageDto(
     @SerialName("from_id")
-    val fromId: String,
-    val text: String
+    val fromId: String = "stub",
+    val text: String = "stub"
 )

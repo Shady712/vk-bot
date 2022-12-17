@@ -19,7 +19,7 @@ fun Application.configureCallbackRouting() {
                 "confirmation" -> call.respondText("f0477966", contentType = ContentType.Text.Plain)
                 "message_new" -> {
                     call.respondText("ok")
-                    messageResponseService.handleIncomingMessage(vkCallbackDto.incomingObjectDto!!.message)
+                    messageResponseService.handleIncomingMessage(vkCallbackDto.incomingObjectDto!!.message!!)
                 }
             }
         }
