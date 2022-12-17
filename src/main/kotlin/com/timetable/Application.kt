@@ -1,9 +1,40 @@
 package com.timetable
 
-import com.timetable.bot.Bot
+import com.timetable.routing.configureCallbackRouting
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.cio.*
+import io.ktor.server.engine.*
+import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
 
 fun main() {
-    val groupId = 217746000
-    val accessToken = "vk1.a.LM2U58gxDgJX8I55_PIg6ZfmrSewYdZ1ghYzlh9ulm4mSEqZld5RHHYtTFbOvja2pQQRsDBbzb3DIitTBpxffoDo8oC5YV-nZMTBv1XbHnQJI-XbuhNif7dTrlT_rVCcBJgVPgIkk31HNYhRVS-O4CW_VwP9VbE191uj5xji8Jzv12TUliqUcHxafCcl6KkqtR2RbJgGHzxNLQIZtDc44w"
-    Bot(groupId, accessToken).start()
+    val env = applicationEngineEnvironment {
+        module {
+            connector {
+                port = 8080
+            }
+            install(CallLogging)
+            install(ContentNegotiation) {
+                json(Json {
+                    encodeDefaults = true
+                    isLenient = true
+                    allowSpecialFloatingPointValues = true
+                    allowStructuredMapKeys = true
+                    prettyPrint = false
+                    useArrayPolymorphism = false
+                    ignoreUnknownKeys = true
+                })
+            }
+            install(IgnoreTrailingSlash)
+
+            configureCallbackRouting()
+        }
+    }
+
+    embeddedServer(CIO, env).apply {
+        start(true)
+    }
 }

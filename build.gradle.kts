@@ -7,9 +7,11 @@ val postgresqlVersion: String by project
 val vkSdkVersion: String by project
 
 plugins {
-    kotlin("jvm") version "1.7.20"
     application
-    id("io.ktor.plugin") version "2.1.3"
+    kotlin("jvm") version "1.7.20"
+    kotlin("kapt") version "1.7.20"
+    kotlin("plugin.serialization") version "1.7.20"
+    id("io.ktor.plugin") version "2.2.1"
 }
 
 group = "com.timetable"
@@ -20,21 +22,19 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
-//    implementation("io.ktor:ktor-server-core:$ktorVersion")
-//    implementation("io.ktor:ktor-server-cio:$ktorVersion")
-//    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-//    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-//    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-cio-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+
     implementation("io.github.microutils:kotlin-logging-jvm:$muVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("org.postgresql:postgresql:$postgresqlVersion")
-    implementation ("com.petersamokhin.vksdk:core:$vkSdkVersion")
-    implementation ("com.petersamokhin.vksdk:http-client-common-ktor-jvm:$vkSdkVersion")
-//    implementation ("com.petersamokhin.vksdk:http-client-jvm-okhttp:$vkSdkVersion")
 
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
+    testImplementation(kotlin("test"))
 }
 
 application {
