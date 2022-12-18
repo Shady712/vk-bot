@@ -36,11 +36,15 @@ class ActivityService(
         }.getOrDefault(false)
     }
 
-    suspend fun getActivitiesForSingleDate(user: User, date: LocalDate): List<Activity> =
-        activityDao.getActivitiesByUserIdAndDate(user.id, date)
+    suspend fun getActivitiesForSingleDate(user: User, date: LocalDate): List<Activity> {
+        logger.info { "Getting activities for user '$user' on date '$date'" }
+        return activityDao.getActivitiesByUserIdAndDate(user.id, date)
+    }
 
-    suspend fun getActivitiesUntilDate(user: User, date: LocalDate): List<Activity> =
-        activityDao.getActivitiesByUserIdAndStartDateAndEndDate(user.id, today(), date)
+    suspend fun getActivitiesUntilDate(user: User, date: LocalDate): List<Activity> {
+        logger.info { "Getting activities for user '$user' from '${today()}' until '$date' inclusively" }
+        return activityDao.getActivitiesByUserIdAndStartDateAndEndDate(user.id, today(), date)
+    }
 
     companion object : KLogging() {
         private val DURATION_REGEX = Regex("\\d+ [hm]")
