@@ -5,6 +5,8 @@ import com.timetable.client.VkClient
 import com.timetable.dao.UserDao
 import com.timetable.service.ActivityService
 import com.timetable.service.MessageResponseService
+import com.timetable.service.MessageResponseService.Companion.EXAMPLE_RESPONSE
+import com.timetable.service.MessageResponseService.Companion.FAQ_RESPONSE
 import com.timetable.service.MessageResponseService.Companion.INTRO_RESPONSE
 import com.timetable.service.MessageResponseService.Companion.MISUNDERSTANDING_RESPONSE
 import com.timetable.util.randomInt
@@ -28,6 +30,14 @@ class SimpleMessageResponseTest : IntegrationTest() {
 
         "Misunderstanding test" {
             simpleMessageResponseTest(randomString(), MISUNDERSTANDING_RESPONSE)
+        }
+
+        "Example test" {
+            simpleMessageResponseTest("Пример", EXAMPLE_RESPONSE)
+        }
+
+        "FAQ test" {
+            simpleMessageResponseTest("FAQ", FAQ_RESPONSE)
         }
 
         "Activity addition misunderstanding tests" - {
