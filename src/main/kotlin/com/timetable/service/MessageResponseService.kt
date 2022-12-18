@@ -20,7 +20,7 @@ class MessageResponseService(
     suspend fun handleIncomingMessage(incomingMessageDto: IncomingMessageDto) {
         logger.debug { "Received incoming message dto: '$incomingMessageDto'" }
         val vkId = incomingMessageDto.fromId.toInt()
-        if (!activeUsers.add(vkId) || userDao.getByVkID(vkId) == null) {
+        if (activeUsers.add(vkId) && userDao.getByVkID(vkId) == null) {
             userDao.insertUser(User(vkId = incomingMessageDto.fromId.toInt()))
             vkClient.sendMessage(vkId, INTRO_RESPONSE)
         } else {
@@ -105,7 +105,8 @@ class MessageResponseService(
 
         internal const val MISUNDERSTANDING_RESPONSE = "Извини, кажется я тебя не понял :(\n$FAQ_RESPONSE"
 
-        internal const val EXAMPLE_RESPONSE = "Добавить\nПомочь кожаному существу понять моё API\n2022-12-31\n5 m\n\n\nПолучить\nНеделя"
+        internal const val EXAMPLE_RESPONSE =
+            "Добавить\nПомочь кожаному существу понять моё API\n2022-12-31\n5 m\n\n\nПолучить\nНеделя"
 
         internal const val SUCCESS_ACTIVITY_ADDITION = "Активность успешно добавлена!"
     }
