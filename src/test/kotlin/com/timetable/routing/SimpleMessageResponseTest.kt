@@ -2,7 +2,6 @@ package com.timetable.routing
 
 import com.timetable.IntegrationTest
 import com.timetable.client.VkClient
-import com.timetable.dao.UserDao
 import com.timetable.service.ActivityService
 import com.timetable.service.MessageResponseService
 import com.timetable.service.MessageResponseService.Companion.EXAMPLE_RESPONSE
@@ -20,27 +19,23 @@ import org.koin.test.inject
 
 class SimpleMessageResponseTest : IntegrationTest() {
     private val activityService by inject<ActivityService>()
-    private val userDao by inject<UserDao>()
     private val vkId = randomInt()
 
     init {
-        "Introduction test" {
-            simpleMessageResponseTest("Привет", INTRO_RESPONSE)
+        "Simple messages" - {
+            listOf(
+                row("Introduction", "Привет", INTRO_RESPONSE),
+                row("Misunderstanding", randomString(), MISUNDERSTANDING_RESPONSE),
+                row("Example", "приМер", EXAMPLE_RESPONSE),
+                row("FAQ", "fAQ", FAQ_RESPONSE)
+            ).map { (testCase, messageText, responseText) ->
+                testCase {
+                    simpleMessageResponseTest(messageText, responseText)
+                }
+            }
         }
 
-        "Misunderstanding test" {
-            simpleMessageResponseTest(randomString(), MISUNDERSTANDING_RESPONSE)
-        }
-
-        "Example test" {
-            simpleMessageResponseTest("Пример", EXAMPLE_RESPONSE)
-        }
-
-        "FAQ test" {
-            simpleMessageResponseTest("FAQ", FAQ_RESPONSE)
-        }
-
-        "Activity addition misunderstanding tests" - {
+        "Activity addition misunderstanding" - {
             listOf(
                 row(
                     "Invalid date format",
@@ -59,6 +54,7 @@ class SimpleMessageResponseTest : IntegrationTest() {
     }
 
     private suspend fun simpleMessageResponseTest(messageText: String, responseString: String) {
+        // Arrange
         val vkClientMock = mockk<VkClient>()
         coJustRun { vkClientMock.sendMessage(any(), any()) }
         val messageResponseService = MessageResponseService(
@@ -66,12 +62,16 @@ class SimpleMessageResponseTest : IntegrationTest() {
             activityService,
             userDao
         )
+
+        // Act
         messageResponseService.handleIncomingMessage(
             IncomingMessageDto(
                 vkId.toString(),
                 messageText
             )
         )
+
+        // Assert
         coVerify(exactly = 1) { vkClientMock.sendMessage(vkId, responseString) }
     }
 }

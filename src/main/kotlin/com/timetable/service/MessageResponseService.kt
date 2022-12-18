@@ -2,8 +2,11 @@ package com.timetable.service
 
 import com.timetable.client.VkClient
 import com.timetable.dao.UserDao
+import com.timetable.model.Activity
 import com.timetable.model.User
+import com.timetable.utils.today
 import com.timetable.vk.dto.IncomingMessageDto
+import kotlinx.datetime.*
 import mu.KLogging
 
 class MessageResponseService(
@@ -39,20 +42,53 @@ class MessageResponseService(
                     vkClient.sendMessage(vkId, MISUNDERSTANDING_RESPONSE)
                 }
             }
+
+            GET_ACTION -> {
+                val period = rawMessage.firstOrNull()?.lowercase()
+                val activities: List<Activity>? = when (period) {
+                    null -> activityService.getActivitiesForSingleDate(user, today())
+                    WEEK -> activityService.getActivitiesUntilDate(user, today().plus(1, DateTimeUnit.WEEK))
+                    MONTH -> activityService.getActivitiesUntilDate(user, today().plus(1, DateTimeUnit.MONTH))
+                    else ->
+                        runCatching {
+                            activityService.getActivitiesForSingleDate(user, LocalDate.parse(period))
+                        }.onFailure {
+                            logger.warn { "Getting activities for date '$period' failed with exception '$it'" }
+                        }.getOrNull()
+                }
+                if (activities == null) {
+                    vkClient.sendMessage(vkId, MISUNDERSTANDING_RESPONSE)
+                } else {
+                    vkClient.sendMessage(vkId, activities.toResponse(period ?: TODAY))
+                }
+            }
+
             EXAMPLE_ACTION -> vkClient.sendMessage(vkId, EXAMPLE_RESPONSE)
             FAQ_ACTION -> vkClient.sendMessage(vkId, FAQ_RESPONSE)
             else -> vkClient.sendMessage(vkId, MISUNDERSTANDING_RESPONSE)
         }
     }
 
+    private fun List<Activity>.toResponse(period: String): String {
+        val sb = StringBuilder().appendLine("Вот твои активности на период: $period").appendLine()
+        withIndex().forEach { activity ->
+            sb.appendLine("${activity.index + 1}. ${activity.value.name}; длительность: ${activity.value.duration}")
+        }
+        return sb.toString()
+    }
+
     companion object : KLogging() {
         private const val ADD_ACTION = "добавить"
         private const val EXAMPLE_ACTION = "пример"
         private const val FAQ_ACTION = "faq"
+        private const val GET_ACTION = "получить"
+        private const val TODAY = "сегодня"
+        private const val WEEK = "неделя"
+        private const val MONTH = "месяц"
 
         internal const val FAQ_RESPONSE =
             "Чтобы завести новую запись в своем расписании, отправь мне сообщение в формате:\n\n" +
-                    "Добавить\n'<Название активности>\n<Время в формате yyyy-mm-dd>\n<Продолжительность в формате N h/m>\n\n" +
+                    "Добавить\n<Название активности>\n<Время в формате yyyy-mm-dd>\n<Продолжительность в формате N h/m>\n\n" +
                     "Чтобы увидеть пример, просто напиши Пример"
 
         internal const val INTRO_RESPONSE =
@@ -60,7 +96,7 @@ class MessageResponseService(
 
         internal const val MISUNDERSTANDING_RESPONSE = "Извини, кажется я тебя не понял :(\n$FAQ_RESPONSE"
 
-        internal const val EXAMPLE_RESPONSE = "Добавить\nПомочь кожаному существу понять моё API\n2022-12-31\n5 m}"
+        internal const val EXAMPLE_RESPONSE = "Добавить\nПомочь кожаному существу понять моё API\n2022-12-31\n5 m"
 
         internal const val SUCCESS_ACTIVITY_ADDITION = "Активность успешно добавлена!"
     }

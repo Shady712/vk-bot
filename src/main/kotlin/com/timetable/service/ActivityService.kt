@@ -4,6 +4,7 @@ import com.timetable.dao.ActivityDao
 import com.timetable.exception.VkBotException
 import com.timetable.model.Activity
 import com.timetable.model.User
+import com.timetable.utils.today
 import kotlinx.datetime.LocalDate
 import mu.KLogging
 
@@ -34,6 +35,12 @@ class ActivityService(
             logger.warn { "Adding activity failed with exception: '$it'" }
         }.getOrDefault(false)
     }
+
+    suspend fun getActivitiesForSingleDate(user: User, date: LocalDate): List<Activity> =
+        activityDao.getActivitiesByUserIdAndDate(user.id, date)
+
+    suspend fun getActivitiesUntilDate(user: User, date: LocalDate): List<Activity> =
+        activityDao.getActivitiesByUserIdAndStartDateAndEndDate(user.id, today(), date)
 
     companion object : KLogging() {
         private val DURATION_REGEX = Regex("\\d+ [hm]")
