@@ -8,6 +8,11 @@ val vkSdkVersion: String by project
 val r2dbcVersion: String by project
 val koinVersion: String by project
 val komapperVersion: String by project
+val kotlinxDatetimeVersion: String by project
+val kotestVersion: String by project
+val kotestKoinVersion: String by project
+val mockkVersion: String by project
+val testcontainersVersion: String by project
 
 plugins {
     application
@@ -54,11 +59,21 @@ dependencies {
     implementation("org.komapper:komapper-starter-r2dbc")
     implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
 
-
+    // utils
     implementation("io.github.microutils:kotlin-logging-jvm:$muVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinxDatetimeVersion")
 
-    testImplementation(kotlin("test"))
+    // test
+    testImplementation(kotlin("test-common"))
+    testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("io.kotest.extensions:kotest-extensions-koin:$kotestKoinVersion")
+    testImplementation("io.insert-koin:koin-test:$koinVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 
 application {

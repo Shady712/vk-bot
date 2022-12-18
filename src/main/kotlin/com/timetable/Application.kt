@@ -1,7 +1,9 @@
 package com.timetable
 
 import com.timetable.module.dbConfigModule
+import com.timetable.module.dbConnectionModule
 import com.timetable.module.messageModule
+import com.timetable.module.vkModule
 import com.timetable.routing.configureCallbackRouting
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -37,7 +39,9 @@ fun main() {
                 slf4jLogger()
                 modules(
                     messageModule,
-                    dbConfigModule
+                    vkModule,
+                    dbConfigModule,
+                    dbConnectionModule
                 )
             }
 

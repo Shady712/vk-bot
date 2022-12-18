@@ -16,7 +16,7 @@ fun Application.configureCallbackRouting() {
         post("/") {
             val vkCallbackDto = call.receive<VkCallbackDto>()
             when (vkCallbackDto.type) {
-                "confirmation" -> call.respondText("f0477966", contentType = ContentType.Text.Plain)
+                "confirmation" -> call.respondText("29b66154", contentType = ContentType.Text.Plain)
                 "message_new" -> {
                     call.respondText("ok")
                     messageResponseService.handleIncomingMessage(vkCallbackDto.incomingObjectDto!!.message!!)
