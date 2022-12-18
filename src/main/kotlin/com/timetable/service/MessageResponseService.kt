@@ -44,9 +44,10 @@ class MessageResponseService(
             }
 
             GET_ACTION -> {
-                val period = rawMessage.firstOrNull()?.lowercase()
+                val period = rawMessage.getOrNull(1)?.lowercase()
                 val activities: List<Activity>? = when (period) {
-                    null -> activityService.getActivitiesForSingleDate(user, today())
+                    null, TODAY -> activityService.getActivitiesForSingleDate(user, today())
+                    TOMORROW -> activityService.getActivitiesForSingleDate(user, today().plus(1, DateTimeUnit.DAY))
                     WEEK -> activityService.getActivitiesUntilDate(user, today().plus(1, DateTimeUnit.WEEK))
                     MONTH -> activityService.getActivitiesUntilDate(user, today().plus(1, DateTimeUnit.MONTH))
                     else ->
@@ -83,6 +84,7 @@ class MessageResponseService(
         private const val FAQ_ACTION = "faq"
         private const val GET_ACTION = "получить"
         private const val TODAY = "сегодня"
+        private const val TOMORROW = "завтра"
         private const val WEEK = "неделя"
         private const val MONTH = "месяц"
 
