@@ -8,17 +8,19 @@ import com.timetable.utils.today
 import com.timetable.vk.dto.IncomingMessageDto
 import kotlinx.datetime.*
 import mu.KLogging
+import java.util.concurrent.ConcurrentHashMap
 
 class MessageResponseService(
     private val vkClient: VkClient,
     private val activityService: ActivityService,
     private val userDao: UserDao
 ) {
+    private val activeUsers = ConcurrentHashMap.newKeySet<Int>()
 
     suspend fun handleIncomingMessage(incomingMessageDto: IncomingMessageDto) {
         logger.debug { "Received incoming message dto: '$incomingMessageDto'" }
         val vkId = incomingMessageDto.fromId.toInt()
-        if (userDao.getByVkID(vkId) == null) {
+        if (!activeUsers.add(vkId) || userDao.getByVkID(vkId) == null) {
             userDao.insertUser(User(vkId = incomingMessageDto.fromId.toInt()))
             vkClient.sendMessage(vkId, INTRO_RESPONSE)
         } else {
@@ -28,6 +30,10 @@ class MessageResponseService(
             } else {
                 handleRequestMessage(vkId, lines)
             }
+        }
+
+        if (activeUsers.size > 5) {
+            activeUsers.clear()
         }
     }
 
