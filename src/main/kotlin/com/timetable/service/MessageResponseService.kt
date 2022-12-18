@@ -81,6 +81,9 @@ class MessageResponseService(
         withIndex().forEach { activity ->
             sb.appendLine("${activity.index + 1}. ${activity.value.name}; длительность: ${activity.value.duration}")
         }
+        if (isEmpty()) {
+            sb.appendLine("Похоже, делать нечего. Добавь активности или погнали чиллить ;)")
+        }
         return sb.toString()
     }
 
@@ -101,7 +104,7 @@ class MessageResponseService(
                     "Получить\n<Дата в формате yyyy-mm-dd | завтра | неделя | месяц | оставь пустым (тогда получишь дела на сегодня)>"
 
         internal const val INTRO_RESPONSE =
-            "Привет! Я бот VKontekste, помогу тебе следить за твоими делами и распорядком дня.\n$FAQ_RESPONSE\nПодписывайся на мой гитхаб Shady712!"
+            "Привет! Я бот VKontekste, помогу тебе следить за твоими делами и распорядком дня.\n$FAQ_RESPONSE\n\n\nПодписывайся на мой гитхаб Shady712! (Мне будет приятно)"
 
         internal const val MISUNDERSTANDING_RESPONSE = "Извини, кажется я тебя не понял :(\n$FAQ_RESPONSE"
 
