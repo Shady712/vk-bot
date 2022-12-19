@@ -9,18 +9,20 @@ import com.timetable.vk.dto.IncomingMessageDto
 import kotlinx.datetime.*
 import mu.KLogging
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class MessageResponseService(
     private val vkClient: VkClient,
     private val activityService: ActivityService,
     private val userDao: UserDao
 ) {
-    private val activeUsers = ConcurrentHashMap.newKeySet<Int>()
+    private val activeUsers = ConcurrentHashMap<Int, Instant>()
 
     suspend fun handleIncomingMessage(incomingMessageDto: IncomingMessageDto) {
         logger.debug { "Received incoming message dto: '$incomingMessageDto'" }
         val vkId = incomingMessageDto.fromId.toInt()
-        if (activeUsers.add(vkId) && userDao.getByVkID(vkId) == null) {
+        if (!activeUsers.contains(vkId) && userDao.getByVkID(vkId) == null) {
             userDao.insertUser(User(vkId = incomingMessageDto.fromId.toInt()))
             vkClient.sendMessage(vkId, INTRO_RESPONSE)
         } else {
@@ -32,13 +34,17 @@ class MessageResponseService(
             }
         }
 
+        activeUsers[vkId] = Clock.System.now()
         if (activeUsers.size > 5) {
             activeUsers.clear()
         }
     }
 
     private suspend fun handleRequestMessage(vkId: Int, rawMessage: List<String>) {
-        vkClient.sendMessage(vkId, "Рад снова тебя видеть!")
+        val lastInteraction = activeUsers[vkId]
+        if (lastInteraction == null || Clock.System.now().minus(lastInteraction) > ACTIVE_DURATION) {
+            vkClient.sendMessage(vkId, "Рад снова тебя видеть!")
+        }
         val user = userDao.getByVkID(vkId)!!
         when (rawMessage.first().lowercase()) {
             ADD_ACTION -> {
@@ -96,6 +102,7 @@ class MessageResponseService(
         private const val TOMORROW = "завтра"
         private const val WEEK = "неделя"
         private const val MONTH = "месяц"
+        private val ACTIVE_DURATION = 3.toDuration(DurationUnit.MINUTES)
 
         internal const val FAQ_RESPONSE =
             "Чтобы завести новую запись в своем расписании, отправь мне сообщение в формате:\n\n" +
